@@ -3,17 +3,28 @@ package user_service_test
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
 	m "mongo-crud-go/models"
 	userService "mongo-crud-go/services/user.service"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var userId string
 
 func TestCreate(t *testing.T) {
 
+	oid := primitive.NewObjectID()
+	userId = oid.Hex()
+
+	random := fmt.Sprint(rand.Intn(100))
+
 	user := m.User{
-		Name:      "Oliver",
+		ID:        oid,
+		Name:      "Oliver" + random,
 		Email:     "user@mail.com",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -57,14 +68,14 @@ func TestRead(t *testing.T) {
 	}
 }
 
-func Update(t *testing.T) {
+func TestUpdate(t *testing.T) {
 
 	user := m.User{
 		Name:  "Smith",
 		Email: "smith@mail.com",
 	}
 
-	err := userService.Update(user, "6287baca7b17aed8a6253c52")
+	err := userService.Update(user, userId)
 
 	if err != nil {
 		t.Error("error update user data - test fail")
@@ -72,4 +83,16 @@ func Update(t *testing.T) {
 	}
 
 	t.Log("test completed successfully")
+}
+
+func TestDelete(t *testing.T) {
+	err := userService.Delete(userId)
+
+	if err != nil {
+		t.Error("Error on delete user - test fail")
+		t.Fail()
+	} else {
+		t.Log("test completed successfully")
+	}
+
 }
